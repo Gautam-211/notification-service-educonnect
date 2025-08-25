@@ -4,6 +4,7 @@ import com.example.notificationservice.notificationservice.dto.CreateNotificatio
 import com.example.notificationservice.notificationservice.dto.NotificationResponse;
 import com.example.notificationservice.notificationservice.entity.Notification;
 import com.example.notificationservice.notificationservice.entity.NotificationStatus;
+import com.example.notificationservice.notificationservice.exception.ResourceNotFoundException;
 import com.example.notificationservice.notificationservice.repository.NotificationRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -61,7 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationResponse getNotificationById(Long id) {
         Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Notification not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notification with id : " + id + " not found"));
         return mapToResponse(notification);
     }
 
