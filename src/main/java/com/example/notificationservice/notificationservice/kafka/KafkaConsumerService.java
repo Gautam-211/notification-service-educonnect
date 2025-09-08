@@ -17,13 +17,14 @@ public class KafkaConsumerService {
 
     @KafkaListener(topics = "course-events", groupId = "notification-service", containerFactory = "kafkaListenerContainerFactory")
     public void consume(CourseEvent event) {
-        System.out.println("*****************************************************");
-        System.out.println("📩 Received event: " + event.getEventType());
-        System.out.println("******************************************************");
+        log.info("Received event: {}", event);
 
         CreateNotificationRequest request = event.getPayload();
 
         // Trigger notification flow
+        log.info("Triggering notification for event: {}", event.getEventType());
         notificationService.sendNotification(request);
+
+        log.info("Notification process completed for event: {}", event.getEventType());
     }
 }

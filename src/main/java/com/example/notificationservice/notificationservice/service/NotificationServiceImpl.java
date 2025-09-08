@@ -9,6 +9,7 @@ import com.example.notificationservice.notificationservice.repository.Notificati
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -26,6 +28,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationResponse sendNotification(CreateNotificationRequest request) {
+        log.info("Sending notification to: {}", request.getRecipientEmail());
+
         Notification notification = Notification.builder()
                 .userId(request.getUserId())
                 .recipientEmail(request.getRecipientEmail())
@@ -41,12 +45,15 @@ public class NotificationServiceImpl implements NotificationService {
         try {
             sendEmail(notification);
             notification.setStatus(NotificationStatus.SENT);
+            log.info("Email sent to {}", notification.getRecipientEmail());
         } catch (Exception e) {
+            log.info("Failed to send email to {}: {}", notification.getRecipientEmail(), e.getMessage());
             notification.setStatus(NotificationStatus.FAILED);
             return mapToResponse(notification);
         }
 
         notificationRepository.save(notification);
+        log.info("Notification status updated to SENT for id: {}", notification.getId());
         return mapToResponse(notification);
     }
 
